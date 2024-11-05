@@ -26,7 +26,7 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    void givenSavedPeople_whenFindByName_thenReturnPageOfPerson() {
+    void givenSavedCustomers_whenFindByName_thenReturnPageOfCustomer() {
         var johnWick = Customer.builder().firstName("John").lastName("Wick").build();
         var johnWickId = customerRepository.save(johnWick).getId();
         var johnSnow = Customer.builder().firstName("John").lastName("Snow").build();
