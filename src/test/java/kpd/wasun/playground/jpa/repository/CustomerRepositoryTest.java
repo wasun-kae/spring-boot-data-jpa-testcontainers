@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,13 +29,13 @@ public class CustomerRepositoryTest {
         customerRepository.deleteAll();
     }
 
-    private Customer saveCustomerToDatabase(String firstName, String lastName, boolean containedAddress) {
-        var addresses = containedAddress ?
-                Set.of(Address.builder()
-                        .name("address")
+    private Customer saveCustomerToDatabase(String firstName, String lastName, boolean addressesIncluded) {
+        var addresses = addressesIncluded ?
+                new HashSet<>(Set.of(Address.builder()
+                        .name("Address V1")
                         .zipCode("1150")
                         .build()
-                ) : null;
+                )) : null;
 
         var customer = Customer.builder()
                 .firstName(firstName)
@@ -42,7 +43,40 @@ public class CustomerRepositoryTest {
                 .addresses(addresses)
                 .build();
 
-        return customerRepository.save(customer);
+        return customerRepository.saveAndFlush(customer);
+    }
+
+    @Test
+    void givenSavedCustomer_whenFindById_thenReturnCustomerWithCreatedAt() {
+        var existingCustomer = saveCustomerToDatabase("John", "Wick", true);
+        var actual = customerRepository.findById(existingCustomer.getId());
+
+        assertThat(actual.isPresent()).isTrue();
+        assertThat(actual.get().getCreatedAt()).isNotNull();
+        assertThat(actual.get().getUpdatedAt()).isNull();
+
+        assertThat(actual.get().getAddresses().stream().findFirst().isPresent()).isTrue();
+        assertThat(actual.get().getAddresses().stream().findFirst().get().getCreatedAt()).isNotNull();
+        assertThat(actual.get().getAddresses().stream().findFirst().get().getUpdatedAt()).isNull();
+    }
+
+    @Test
+    void givenSavedCustomer_whenUpdateCustomer_thenReturnCustomerWithUpdatedAt() {
+        var existingCustomer = saveCustomerToDatabase("John", "Wick", true);
+        existingCustomer.setFirstName("John V2");
+        existingCustomer.getAddresses()
+                .stream()
+                .findFirst()
+                .ifPresent(address -> address.setName("Address V2"));
+
+        customerRepository.saveAndFlush(existingCustomer);
+        var actual = customerRepository.findById(existingCustomer.getId());
+
+        assertThat(actual.isPresent()).isTrue();
+        assertThat(actual.get().getUpdatedAt()).isNotNull();
+
+        assertThat(actual.get().getAddresses().stream().findFirst().isPresent()).isTrue();
+        assertThat(actual.get().getAddresses().stream().findFirst().get().getUpdatedAt()).isNotNull();
     }
 
     @Test

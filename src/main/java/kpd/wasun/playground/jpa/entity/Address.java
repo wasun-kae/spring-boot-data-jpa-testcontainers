@@ -3,6 +3,7 @@ package kpd.wasun.playground.jpa.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,6 +31,12 @@ public class Address {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at", insertable = false)
+    private Instant updatedAt;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,5 +48,15 @@ public class Address {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @PrePersist
+    public void createAt() {
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void updatedAt() {
+        this.updatedAt = Instant.now();
     }
 }
