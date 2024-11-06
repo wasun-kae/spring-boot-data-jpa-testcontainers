@@ -30,31 +30,23 @@ public class CustomerRepositoryTest {
     }
 
     private Customer saveCustomerToDatabase(String firstName, String lastName, boolean addressesIncluded) {
-        var addresses = addressesIncluded ?
-                /* Fix UnsupportedOperationException from immutable set from only Set.of */
-                new HashSet<>(Set.of(Address.builder()
-                        .name("Address V1")
-                        .zipCode("1150")
-                        .build()
-                )) : null;
-
         var customer = Customer.builder()
                 .firstName(firstName)
                 .lastName(lastName)
-                .addresses(addresses)
                 .build();
 
-        /*
-            Fix bidirectional relationship annotations:
-            - @ManyToOne(optional = false, fetch = FetchType.LAZY)
-            - @JoinColumn(name = "customer_id", updatable = false)
-         */
-        if (customer.getAddresses() != null) {
-            customer.getAddresses().stream().findFirst().ifPresent(address ->
-                    address.setCustomer(customer)
-            );
+        if (addressesIncluded) {
+            var address = Address.builder()
+                    .name("Address V1")
+                    .zipCode("1150")
+                    .customer(customer)
+                    .build();
+            
+            /* Fix UnsupportedOperationException from using immutable with Set.of */
+            customer.setAddresses(new HashSet<>(Set.of(address)));
         }
 
+        /* Flush data for saving to database immediately in case of getting value for @PreUpdate annotation */
         return customerRepository.saveAndFlush(customer);
     }
 
