@@ -4,40 +4,38 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customer", indexes = {
-        @Index(name = "first_name_idx", columnList = "firstName")
-})
+@Table(name = "address")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
-
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<Address> addresses;
+public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "first_name", nullable = false, length = 50)
-    private String firstName;
-    
-    @Column(name = "last_name", nullable = false, length = 50)
-    private String lastName;
+    @Column(name = "name", nullable = false, length = 20)
+    private String name;
+
+    @Column(name = "zip_code", nullable = false, length = 10)
+    private String zipCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id);
+        Address address = (Address) o;
+        return Objects.equals(id, address.id);
     }
 
     @Override

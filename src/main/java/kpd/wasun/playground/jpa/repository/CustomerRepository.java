@@ -6,10 +6,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
 
-    Page<Customer> findByFirstName(String FirstName, PageRequest pageRequest);
+    List<Customer> findTop10ByFirstNameOrderByLastNameAsc(String firstName);
+
+    /* Note: @OneToMany fetching isn't compatible with Spring Data Page */
+    Page<Customer> findByFirstName(String firstName, PageRequest pageRequest);
 }
