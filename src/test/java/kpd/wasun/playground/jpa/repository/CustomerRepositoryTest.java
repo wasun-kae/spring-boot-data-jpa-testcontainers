@@ -26,11 +26,13 @@ public class CustomerRepositoryTest {
     }
 
     @Test
-    void givenSavedCustomers_whenFindByName_thenReturnPageOfCustomer() {
+    void givenSavedCustomers_whenFindByNameAndPageRequest_thenReturnPageOfCustomer() {
         var johnWick = Customer.builder().firstName("John").lastName("Wick").build();
         var johnWickId = customerRepository.save(johnWick).getId();
         var johnSnow = Customer.builder().firstName("John").lastName("Snow").build();
         var johnSnowId = customerRepository.save(johnSnow).getId();
+        var branStark = Customer.builder().firstName("Bran").lastName("Stark").build();
+        customerRepository.save(branStark);
 
         var sort = Sort.by(new Sort.Order(Sort.Direction.ASC, "lastName"));
         var pageRequest = PageRequest.of(0, 2, sort);
