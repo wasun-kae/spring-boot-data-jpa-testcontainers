@@ -1,4 +1,4 @@
-# Spring Boot - Repository Layer Testing with Test Slice `@DataJpaTest` and `TestContainers`
+# Spring Boot - Repository Layer Testing with Test Slice `@DataJpaTest` and `TestContainers` (Postgres)
 
 ### Pre-requisite
 
@@ -11,6 +11,14 @@
 # Don't forget to start docker service before
 ./mvnw test
 ```
+
+### Concerns when using `@DataJpaTest`
+
+Below are default behaviors of this annotation
+
+- Data will be flushed to a database transaction but `NOT` be commited
+- It means that the data will `NOT` be completely written in the database and be visible to query directly
+- Transaction will be rolled back at the end of `@Test` method execution (to keep each test state clean)
 
 ### References
 
