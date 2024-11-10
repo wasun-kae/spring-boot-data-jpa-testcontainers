@@ -3,7 +3,6 @@ package kpd.wasun.playground.jpa.repository;
 import kpd.wasun.playground.jpa.entity.Address;
 import kpd.wasun.playground.jpa.entity.Customer;
 import kpd.wasun.playground.jpa.testcontainers.PostgresTestContainer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,12 +22,7 @@ public class CustomerRepositoryTest {
 
     @Autowired
     private CustomerRepository customerRepository;
-
-    @BeforeEach
-    void setup() {
-        customerRepository.deleteAll();
-    }
-
+    
     private Customer saveCustomerToDatabase(String firstName, String lastName, boolean addressesIncluded) {
         var customer = Customer.builder()
                 .firstName(firstName)
@@ -41,7 +35,7 @@ public class CustomerRepositoryTest {
                     .zipCode("1150")
                     .customer(customer)
                     .build();
-            
+
             /* Fix UnsupportedOperationException from using immutable with Set.of */
             customer.setAddresses(new HashSet<>(Set.of(address)));
         }
